@@ -90,6 +90,7 @@ function editProduct(id, title, price, description) {
 // =============================
 
 function loadProducts() {
+
   fetch("http://localhost:5000/api/products")
     .then(res => res.json())
     .then(data => {
@@ -100,15 +101,26 @@ function loadProducts() {
         card.classList.add("product-card");
 
         card.innerHTML = `
-          <h3>${product.title}</h3>
-          <p>₹${product.price}</p>
-          <p>${product.description}</p>
+  <img src="${product.image}" class="product-img">
+  <h3>${product.title}</h3>
+  <p class="price">₹${product.price}</p>
+  <p>${product.description}</p>
+
+  ${isLoggedIn() ? `
+    <button onclick="editProduct('${product._id}', '${product.title}', '${product.price}', '${product.description}')">Edit</button>
+    <button onclick="deleteProduct('${product._id}')">Delete</button>
+  ` : ""}
+`;
+
+
           
-         ${isLoggedIn() ? `
+         ${
+          isLoggedIn() ? `
            <button onclick="editProduct('${product._id}', '${product.title}', '${product.price}', '${product.description}')">Edit</button>
 
             <button onclick="deleteProduct('${product._id}')">Delete</button>
-            ` : ""}
+            ` : ""
+        }
 
         `;
 
@@ -150,26 +162,26 @@ form.addEventListener("submit", function (e) {
 
   if (editMode) {
     fetch(`http://localhost:5000/api/products/${editProductId}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
-      },
-      body: JSON.stringify(productData)
-    })
-      .then(res => res.json())
-      .then(() => {
-        editMode = false;
-        editProductId = null;
-        form.reset();
-        loadProducts();
-      });
-  } else {
-    fetch("http://localhost:5000/api/products", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
+        method: "PUT",
+          headers: {
+          "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(productData)
+      })
+        .then(res => res.json())
+        .then(() => {
+          editMode = false;
+          editProductId = null;
+          form.reset();
+          loadProducts();
+        });
+    } else {
+      fetch("http://localhost:5000/api/products", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
       },
       body: JSON.stringify(productData)
     })
